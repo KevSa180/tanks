@@ -133,15 +133,6 @@ class Menu:
         self.__draw_title("EDITOR DE NIVELES", COLOR_PLAYER, y=120)
         self.__draw_subtitle("Elige el nivel a editar", COLOR_GRAY, y=195)
 
-        desc = [
-            "Nivel fácil · se carga el mapa aleatorio",
-            "Nivel medio · se carga el mapa aleatorio",
-            "Nivel difícil · se carga el mapa aleatorio",
-        ]
-        colors = [COLOR_GREEN, COLOR_YELLOW, COLOR_RED]
-        for i, (text, color) in enumerate(zip(desc, colors)):
-            self.__blit_center(text, self.__font_small, color, y=318 + i * 70)
-
         self.__btn_easy.draw(self.__screen)
         self.__btn_medium.draw(self.__screen)
         self.__btn_hard.draw(self.__screen)
