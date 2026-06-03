@@ -124,6 +124,40 @@ class Menu:
                 return 'quit'
         return None
 
+    def draw_editor_level_select(self):
+        """
+        Dibuja la pantalla de selección de nivel para el editor.
+        Retorna 1, 2, 3, 'back' o None.
+        """
+        self.__draw_animated_bg()
+        self.__draw_title("EDITOR DE NIVELES", COLOR_PLAYER, y=120)
+        self.__draw_subtitle("Elige el nivel a editar", COLOR_GRAY, y=195)
+
+        desc = [
+            "Nivel fácil · se carga el mapa aleatorio",
+            "Nivel medio · se carga el mapa aleatorio",
+            "Nivel difícil · se carga el mapa aleatorio",
+        ]
+        colors = [COLOR_GREEN, COLOR_YELLOW, COLOR_RED]
+        for i, (text, color) in enumerate(zip(desc, colors)):
+            self.__blit_center(text, self.__font_small, color, y=318 + i * 70)
+
+        self.__btn_easy.draw(self.__screen)
+        self.__btn_medium.draw(self.__screen)
+        self.__btn_hard.draw(self.__screen)
+        self.__btn_back.draw(self.__screen)
+
+        for event in pygame.event.get(pygame.MOUSEBUTTONDOWN):
+            if self.__btn_easy.is_clicked(event):
+                return 1
+            if self.__btn_medium.is_clicked(event):
+                return 2
+            if self.__btn_hard.is_clicked(event):
+                return 3
+            if self.__btn_back.is_clicked(event):
+                return 'back'
+        return None
+
     def draw_level_select(self):
         """
         Dibuja la pantalla de selección de nivel.

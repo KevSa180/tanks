@@ -4,7 +4,8 @@ import pygame
 import sys
 from constants import (
     SCREEN_WIDTH, SCREEN_HEIGHT, FPS,
-    STATE_MENU, STATE_LEVEL_SELECT, STATE_PLAYING, STATE_GAME_OVER, STATE_WIN,
+    STATE_MENU, STATE_LEVEL_SELECT, STATE_EDITOR_SELECT,
+    STATE_PLAYING, STATE_GAME_OVER, STATE_WIN,
     STATE_LEVEL_TRANSITION, TOTAL_LEVELS, GRID_ROWS, CELL_SIZE, HUD_HEIGHT,
     COLOR_BG
 )
@@ -31,6 +32,7 @@ class GameController:
         self.__current_level = 1
         self.__game_state = STATE_MENU
         self.__custom_mode = False  # True mientras se prueba un nivel del editor
+        self.__random_mode = True   # False → usa niveles guardados; True → genera aleatoriamente
 
         # Prolog
         self.__prolog_bridge = PrologBridge()
@@ -87,7 +89,8 @@ class GameController:
         """Inicia el juego desde el nivel indicado (niveles normales)."""
         self.__custom_mode = False
         self.__current_level = level
-        self.__board.load_level(level, self.__prolog_bridge)
+        self.__board.load_level(level, self.__prolog_bridge,
+                                random_mode=self.__random_mode)
         start_x, start_y = self.__board.get_player_start()
         self.__player = PlayerTank(start_x, start_y)
         self.__game_state = STATE_PLAYING
@@ -105,7 +108,8 @@ class GameController:
             self.__game_state = STATE_WIN
             return
 
-        self.__board.load_level(self.__current_level, self.__prolog_bridge)
+        self.__board.load_level(self.__current_level, self.__prolog_bridge,
+                                random_mode=self.__random_mode)
         start_x, start_y = self.__board.get_player_start()
         self.__player.reset_position(start_x, start_y)
         self.__player.reset_lives()
@@ -116,15 +120,27 @@ class GameController:
         """Transición al estado Game Over."""
         self.__game_state = STATE_GAME_OVER
 
-    def __launch_editor(self):
-        """Abre el editor de niveles (bucle modal).
+    def __launch_editor_for_level(self, level_number):
+        """Abre el editor con el nivel `level_number`.
 
-        Si el usuario presiona PROBAR (ENTER) juega el nivel editado SIN
-        alterar los niveles normales; si solo sale (ESC), vuelve al menú.
+        Carga el archivo guardado si existe; si no, genera uno aleatorio.
+        Al salir captura el estado del toggle random.
+        Si el usuario presiona PROBAR (ENTER) juega el nivel editado.
         """
+        import os
         from level_editor import LevelEditor
-        editor = LevelEditor(self.__screen, self.__clock)
-        grid_lines = editor.run_editor()
+        editor = LevelEditor(self.__screen, self.__clock,
+                             level_number, self.__random_mode)
+
+        levels_dir = os.path.join(os.path.dirname(__file__), 'levels')
+        saved_path = os.path.join(levels_dir, f'level{level_number}.txt')
+        if os.path.exists(saved_path):
+            editor.load_level(saved_path)
+        else:
+            grid_strings = self.__board.generate_level_grid(level_number)
+            editor.load_from_grid_strings(grid_strings)
+
+        grid_lines, self.__random_mode = editor.run_editor()
         if grid_lines:
             self.__start_custom_game(grid_lines)
         else:
@@ -263,6 +279,9 @@ class GameController:
         elif self.__game_state == STATE_LEVEL_SELECT:
             self.__render_level_select()
 
+        elif self.__game_state == STATE_EDITOR_SELECT:
+            self.__render_editor_select()
+
         elif self.__game_state in (STATE_PLAYING, STATE_LEVEL_TRANSITION):
             self.__render_game()
             if self.__game_state == STATE_LEVEL_TRANSITION:
@@ -282,7 +301,7 @@ class GameController:
         elif action == 'levels':
             self.__game_state = STATE_LEVEL_SELECT
         elif action == 'editor':
-            self.__launch_editor()
+            self.__game_state = STATE_EDITOR_SELECT
         elif action == 'quit':
             pygame.quit()
             sys.exit()
@@ -291,6 +310,13 @@ class GameController:
         result = self.__menu.draw_level_select()
         if isinstance(result, int):
             self.start_game(result)
+        elif result == 'back':
+            self.__game_state = STATE_MENU
+
+    def __render_editor_select(self):
+        result = self.__menu.draw_editor_level_select()
+        if isinstance(result, int):
+            self.__launch_editor_for_level(result)
         elif result == 'back':
             self.__game_state = STATE_MENU
 

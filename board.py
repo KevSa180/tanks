@@ -2,6 +2,7 @@
 
 import pygame
 import random
+import os
 from constants import (
     GRID_COLS, GRID_ROWS, CELL_SIZE,
     LEVEL_WALL, LEVEL_FREE, LEVEL_PLAYER,
@@ -44,8 +45,8 @@ class Board:
     # Carga de nivel
     # ------------------------------------------------------------------
 
-    def load_level(self, level_number, prolog_bridge=None):
-        """Genera el nivel con posiciones aleatorias y cantidades predefinidas."""
+    def load_level(self, level_number, prolog_bridge=None, random_mode=True):
+        """Carga el nivel: desde archivo si random_mode=False y existe, si no genera aleatoriamente."""
         self.__level = level_number
         self.__walls = []
         self.__objectives = []
@@ -53,8 +54,30 @@ class Board:
         self.__bullets = []
         self.__grid = [['.' for _ in range(GRID_COLS)] for _ in range(GRID_ROWS)]
 
+        if not random_mode:
+            levels_dir = os.path.join(os.path.dirname(__file__), 'levels')
+            path = os.path.join(levels_dir, f'level{level_number}.txt')
+            if os.path.exists(path):
+                grid_data = self.__load_grid_from_file(path)
+                self.__build_from_grid(grid_data, prolog_bridge)
+                return
+
         grid_data = self.__generate_level(level_number)
         self.__build_from_grid(grid_data, prolog_bridge)
+
+    def __load_grid_from_file(self, path):
+        """Carga la grilla desde un archivo de texto."""
+        grid_data = [[LEVEL_FREE for _ in range(GRID_COLS)] for _ in range(GRID_ROWS)]
+        try:
+            with open(path, 'r') as f:
+                lines = f.readlines()
+            for y in range(min(GRID_ROWS, len(lines))):
+                line = lines[y].rstrip('\n')
+                for x in range(min(GRID_COLS, len(line))):
+                    grid_data[y][x] = line[x]
+        except Exception:
+            pass
+        return grid_data
 
     def load_custom_level(self, grid_lines, prolog_bridge=None):
         """
@@ -81,6 +104,11 @@ class Board:
             ])
 
         self.__build_from_grid(grid_data, prolog_bridge)
+
+    def generate_level_grid(self, level_number):
+        """Genera y retorna la grilla aleatoria del nivel como lista de strings sin modificar el estado."""
+        grid_data = self.__generate_level(level_number)
+        return [''.join(row) for row in grid_data]
 
     def __generate_level(self, level_number):
         """

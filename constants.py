@@ -36,6 +36,7 @@ DIR_DELTA = {
 # --- Estados del juego ---
 STATE_MENU             = 'MENU'
 STATE_LEVEL_SELECT     = 'LEVEL_SELECT'
+STATE_EDITOR_SELECT    = 'EDITOR_SELECT'
 STATE_PLAYING          = 'PLAYING'
 STATE_GAME_OVER        = 'GAME_OVER'
 STATE_WIN              = 'WIN'
