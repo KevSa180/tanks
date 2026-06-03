@@ -47,16 +47,16 @@ class Menu:
         cx = SCREEN_WIDTH // 2
         btn_w, btn_h = 220, 50
 
-        self.__btn_play     = Button(cx - btn_w//2, 320, btn_w, btn_h,
+        self.__btn_play     = Button(cx - btn_w//2, 275, btn_w, btn_h,
                                      "JUGAR",
                                      (30, 100, 60), (40, 160, 90))
-        self.__btn_levels   = Button(cx - btn_w//2, 385, btn_w, btn_h,
+        self.__btn_levels   = Button(cx - btn_w//2, 345, btn_w, btn_h,
                                      "NIVELES",
                                      (50, 50, 120), (70, 70, 170))
-        self.__btn_editor   = Button(cx - btn_w//2, 450, btn_w, btn_h,
+        self.__btn_editor   = Button(cx - btn_w//2, 415, btn_w, btn_h,
                                      "EDITOR",
                                      (90, 60, 120), (130, 90, 170))
-        self.__btn_quit     = Button(cx - btn_w//2, 515, btn_w, btn_h,
+        self.__btn_quit     = Button(cx - btn_w//2, 485, btn_w, btn_h,
                                      "SALIR",
                                      (100, 30, 30), (160, 40, 40))
 
@@ -106,16 +106,7 @@ class Menu:
         'play', 'levels', 'editor', 'quit' o None.
         """
         self.__draw_animated_bg()
-        self.__draw_title("TANK WARS", COLOR_PLAYER, y=120)
-        self.__draw_subtitle("Juego de Tanques con Prolog", COLOR_GRAY, y=195)
-
-        lines = [
-            "FLECHAS / WASD  →  Mover",
-            "ESPACIO         →  Disparar",
-            "Destruye todos los objetivos enemigos",
-        ]
-        for i, line in enumerate(lines):
-            self.__blit_center(line, self.__font_small, COLOR_GRAY, y=245 + i * 24)
+        self.__draw_title("TANK WARS", COLOR_PLAYER, y=165)
 
         self.__btn_play.draw(self.__screen)
         self.__btn_levels.draw(self.__screen)
@@ -141,14 +132,6 @@ class Menu:
         self.__draw_animated_bg()
         self.__draw_title("SELECCIONAR NIVEL", COLOR_PLAYER, y=120)
         self.__draw_subtitle("Elige desde qué nivel comenzar", COLOR_GRAY, y=195)
-
-        desc = [
-            ("NIVEL 1", "2 enemigos ligeros · 1 objetivo primario",   COLOR_GREEN),
-            ("NIVEL 2", "3 enemigos · 1 objetivo primario + 1 extra", COLOR_YELLOW),
-            ("NIVEL 3", "4 enemigos · 1 objetivo primario + 2 extra", COLOR_RED),
-        ]
-        for i, (_, text, color) in enumerate(desc):
-            self.__blit_center(text, self.__font_small, color, y=318 + i * 70)
 
         self.__btn_easy.draw(self.__screen)
         self.__btn_medium.draw(self.__screen)
